@@ -9,17 +9,34 @@ from torch import nn
 
 import numpy as np
 
+# TODO: Maybe, make the output be the rate of increase (as a percent) instead of the actual close price
+
+#Parameters
+data_period = "10y"
+data_interval = "1d" #How precise is the data being measured is
+
+window = 90 #The window of time the LSTM model will look at
+
+split_ratio = 0.9
+
+batch_size = 32 #DataLoader
+
+#LSTM NN
+epochs = 300
+learning_rate = 0.0001
+
+hidden_size = 64
+dropout = 0.2
+num_layers = 1
+
 symbol = "AAPL"
 
 ticker = yf.Ticker(symbol)
 
-historical_data = ticker.history(period="10y", interval="1d")
+historical_data = ticker.history(period=data_period, interval=data_interval)
 historical_data = historical_data[["Open", "High", "Low", "Close"]]
 
-# scaler = MinMaxScaler()
-# normal = scaler.fit_transform(historical_data)
-
-split = round(0.8 * len(historical_data))
+split = int(split_ratio * len(historical_data))
 
 train_data = historical_data[:split]
 test_data = historical_data[split:]
@@ -32,7 +49,7 @@ normal = np.concatenate([train_normal, test_normal], axis=0)
 
 normal_tensor = torch.tensor(normal, dtype=torch.float32)
 
-window = 90 #The window of time the LSTM model will look at
+
 x, y = [], []
 
 for i in range(len(normal_tensor) - window):
@@ -46,7 +63,7 @@ class LSTM_Model(nn.Module):
     def __init__(self, hidden_size):
         super().__init__()
 
-        self.re = nn.LSTM(4, hidden_size=hidden_size, batch_first=True, dropout=0.2)
+        self.re = nn.LSTM(4, hidden_size=hidden_size, batch_first=True, dropout=dropout, num_layers=num_layers)
         self.relu = nn.ReLU()
         self.linear = nn.Linear(hidden_size, 1)
 
@@ -70,17 +87,14 @@ y_test = y[adjusted_split:]
 # print(split / len(normal_tensor))
 
 lstm = LSTM_Model(hidden_size=64)
-optimizer = torch.optim.AdamW(lstm.parameters(), lr=0.0001)
+optimizer = torch.optim.AdamW(lstm.parameters(), lr=learning_rate)
 loss_fn = nn.MSELoss()
-epochs = 150
 
 train_losses = []
 test_losses = []
 
 from torch.utils.data import TensorDataset, DataLoader
 
-# After creating x_train, y_train
-batch_size = 32
 
 train_dataset = TensorDataset(x_train, y_train)
 train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
