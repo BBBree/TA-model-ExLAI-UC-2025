@@ -36,6 +36,7 @@ ticker = yf.Ticker(symbol)
 
 historical_data = ticker.history(period=data_period, interval=data_interval)
 historical_data = historical_data[["Open", "High", "Low", "Close"]]
+select_data = historical_data[["Close"]]
 
 split = int(split_ratio * len(historical_data))
 
@@ -142,34 +143,27 @@ for epoch in range(epochs):
 
     print(f"Epoch {epoch + 1}/{epochs} - Train Loss: {avg_train_loss:.4f}, Test Loss: {avg_test_loss:.4f}")
 
-#Plotting predicted graphs
+# A new scaler for inverse normalization with only the close prices
+close_scaler = StandardScaler()
+close_scaler.fit(train_data[['Close']])
+
 with torch.no_grad():
     predictions = lstm(x_test)
 
-#Indicies from the dates of the original test set.
+predicted_prices = close_scaler.inverse_transform(predictions.numpy())
+
+actual_prices = close_scaler.inverse_transform(y_test.numpy())
+
+# Plotting
 test_dates = test_data.index[window:]
-
-# Get normalized test data (excluding first 'window' points)
-test_normal_full = test_normal[window:]  # shape: [n_test - window, 4]
-
-# Replace close prices with predictions
-test_normal_pred = test_normal_full.copy()
-test_normal_pred[:, 3] = predictions.squeeze().numpy()
-
-# Inverse transform
-predicted_prices = scaler.inverse_transform(test_normal_pred)[:, 3]
-actual_prices = test_data['Close'].values[window:]
-
-#Ploting
 plt.figure(figsize=(12, 6))
 plt.plot(test_dates, actual_prices, label="Actual Close Price")
-plt.plot(test_dates, predicted_prices, label="Predicted Close Price")
+plt.plot(test_dates, predicted_prices, label="Predicted Close Price", alpha=0.7)
 plt.title("Actual vs Predicted Close Prices (Test Set)")
 plt.xlabel("Date")
 plt.ylabel("Price (USD)")
 plt.legend()
 plt.grid(True)
-plt.xticks(rotation=45)  # Rotate date labels for readability
+plt.xticks(rotation=45)
 plt.tight_layout()
 plt.show()
-
