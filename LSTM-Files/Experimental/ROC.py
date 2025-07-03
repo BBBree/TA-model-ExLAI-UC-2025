@@ -12,7 +12,7 @@ import numpy as np
 # TODO: Maybe, make the output be the rate of increase (as a percent) instead of the actual close price
 
 #Parameters
-data_period = "10y"
+data_period = "max"
 data_interval = "1d" #How precise is the data being measured is
 
 window = 90 #The window of time the LSTM model will look at
@@ -22,7 +22,7 @@ split_ratio = 0.9
 batch_size = 32 #DataLoader
 
 #LSTM NN
-epochs = 300
+epochs = 10
 learning_rate = 0.0001
 
 hidden_size = 64
@@ -36,28 +36,49 @@ ticker = yf.Ticker(symbol)
 historical_data = ticker.history(period=data_period, interval=data_interval)
 historical_data = historical_data[["Open", "High", "Low", "Close"]]
 
+#PCT - The rate of change between two points
+output_data = historical_data["Close"].pct_change()
+output_data = output_data.fillna(0) #Fills in the NaN value in the beginning
+
+#Splitting Data
 split = int(split_ratio * len(historical_data))
 
-train_data = historical_data[:split]
-test_data = historical_data[split:]
+
+x_train_df = historical_data[:split]
+y_train_df = output_data[:split]
+
+x_test_df = historical_data[split:]
+y_test_df = output_data[split:]
+
 
 scaler = StandardScaler()
-train_normal = scaler.fit_transform(train_data)
-test_normal = scaler.transform(test_data)
+train_normal = scaler.fit_transform(x_train_df)
+test_normal = scaler.transform(x_test_df)
 
-normal = np.concatenate([train_normal, test_normal], axis=0)
+# normal = np.concatenate([train_normal, test_normal], axis=0)
 
-normal_tensor = torch.tensor(normal, dtype=torch.float32)
+# normal_tensor = torch.tensor(normal, dtype=torch.float32)
 
 
-x, y = [], []
+def create_seq (input, output, window_size):
 
-for i in range(len(normal_tensor) - window):
-    x.append(normal_tensor[i:i+window]) #X - input, every aspect of the tensor in i
-    y.append(normal_tensor[i + window][3]) #Y - output the close price that is to be predicted from the tensor of the previous element
+    x, y = [], []
 
-x = torch.stack(x)             # Shape: (N, 1, 4)
-y = torch.tensor(y).unsqueeze(-1)  # Shape: (N, 1)
+    for i in range(len(input) - window_size):
+        x.append(input[i:i+window]) #X - input, every aspect of the tensor in i
+        y.append(output.iloc[i + window]) #Y - output the close price that is to be predicted from the tensor of the previous element
+
+    x = torch.tensor(np.array(x), dtype=torch.float32)
+    y = torch.tensor(np.array(y), dtype=torch.float32).unsqueeze(1)
+
+    return x, y
+
+
+# x = torch.stack(x)             # Shape: (N, 1, 4)
+# y = torch.tensor(y, dtype=torch.float32).unsqueeze(-1)  # Shape: (N, 1)
+
+x_train, y_train = create_seq(train_normal, y_train_df, window)
+x_test, y_test = create_seq(test_normal, y_test_df, window)
 
 class LSTM_Model(nn.Module):
     def __init__(self, hidden_size):
@@ -74,12 +95,12 @@ class LSTM_Model(nn.Module):
         # X = self.relu(X)
         return X
 
-adjusted_split = split - window
+# adjusted_split = split - window
 
-x_train = x[:adjusted_split]
-y_train = y[:adjusted_split]
-x_test = x[adjusted_split:]
-y_test = y[adjusted_split:]
+# x_train = x[:adjusted_split]
+# y_train = y[:adjusted_split]
+# x_test = x[adjusted_split:]
+# y_test = y[adjusted_split:]
 
 # print(len(normal_tensor))
 # print(split)
@@ -137,34 +158,25 @@ with torch.no_grad():
     predictions = lstm(x_test)
 
 #Indicies from the dates of the original test set.
-test_indices_original = range(window + len(x_train), window + len(x))
-test_dates = historical_data.index[test_indices_original]
+test_dates = x_test_df.index[window:]
 
 predictions = predictions.squeeze().numpy()
-y_test_actual = y_test.squeeze().numpy()
+ 
+actual_prices = x_test_df["Close"].iloc[window-1:-1].values
 
-# Prepare dummy array to inverse scale
-pred_full = np.zeros((len(predictions), 4))
-actual_full = np.zeros((len(y_test_actual), 4))
+predicted_prices = actual_prices * (1 + predictions)
 
-# Fill in the predicted close price at index 3
-pred_full[:, 3] = predictions
-actual_full[:, 3] = y_test_actual
-
-# Invert scaling
-predicted_prices = scaler.inverse_transform(pred_full)[:, 3]
-actual_prices = scaler.inverse_transform(actual_full)[:, 3]
-
-#Ploting
-plt.figure(figsize=(12, 6))
-plt.plot(test_dates, actual_prices, label="Actual Close Price")
-plt.plot(test_dates, predicted_prices, label="Predicted Close Price")
-plt.title("Actual vs Predicted Close Prices (Test Set)")
+# Plotting
+plt.figure(figsize=(14, 7))
+plt.plot(test_dates, actual_prices, label="Actual Close Price", color='blue')
+plt.plot(test_dates, predicted_prices, label="Predicted Close Price", color='orange')
+plt.title(f"{symbol} - Actual vs. Predicted Close Prices (Predicting % Change)")
 plt.xlabel("Date")
 plt.ylabel("Price (USD)")
 plt.legend()
 plt.grid(True)
-plt.xticks(rotation=45)  # Rotate date labels for readability
+plt.xticks(rotation=45)
 plt.tight_layout()
 plt.show()
 
+print(predictions)
