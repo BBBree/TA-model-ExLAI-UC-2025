@@ -8,7 +8,7 @@ from datetime import date
 #Parameters
 symbol = "AAPL"
 
-data_period = "10y"
+data_period = "max"
 data_interval = "1d" #How precise is the data being measured is
 
 ticker = yf.Ticker(symbol)

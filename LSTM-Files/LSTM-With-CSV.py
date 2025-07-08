@@ -13,7 +13,7 @@ torch.manual_seed(42)
 np.random.seed(42)
 
 #Parameters
-data_period = "10y"
+data_period = 10 # In years
 data_interval = "1d" #How precise is the data being measured is
 
 window = 90 #The window of time the LSTM model will look at
@@ -23,7 +23,7 @@ split_ratio = 0.8
 batch_size = 32 #DataLoader
 
 #LSTM NN
-epochs = 75
+epochs = 25
 learning_rate = 0.001
 
 hidden_size = 128
@@ -35,7 +35,16 @@ symbol = "AAPL"
 ticker = yf.Ticker(symbol)
 
 historical_data = pd.read_csv("Dataset/APPL.csv", parse_dates=["Date"])
+#Converts items in the date category to datetime objects, instead of strings
 historical_data.set_index("Date", inplace=True)
+
+# Makes historical_data only use a portion of the entire stock
+if (data_period != "max"):
+    import re
+
+    end_date = historical_data.index.max() # Last date of historical data
+    start_date = end_date - pd.DateOffset(years=data_period) # data_period years before end_date
+    historical_data = historical_data.loc[historical_data.index >= start_date] # Elements after the start_date
 
 split = int(split_ratio * len(historical_data))
 
