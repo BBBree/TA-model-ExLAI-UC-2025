@@ -13,17 +13,17 @@ torch.manual_seed(42)
 np.random.seed(42)
 
 #Parameters
-data_period = 10 # In years
-data_interval = "1d" #How precise is the data being measured is
+data_period = 15 # In years
+data_interval = "1d" # How precise is the data being measured is
 
-window = 90 #The window of time the LSTM model will look at
+window = 90 # The window of time the LSTM model will look at
 
 split_ratio = 0.8
 
-batch_size = 32 #DataLoader
+batch_size = 32 # DataLoader
 
-#LSTM NN
-epochs = 25
+# LSTM NN
+epochs = 50
 learning_rate = 0.001
 
 hidden_size = 128
@@ -32,11 +32,35 @@ num_layers = 1
 
 symbol = "AAPL"
 
+# #Parameters
+# data_period = 10 # In years
+# data_interval = "1d" # How precise is the data being measured is
+
+# window = 90 # The window of time the LSTM model will look at
+
+# split_ratio = 0.8
+
+# batch_size = 32 # DataLoader
+
+# # LSTM NN
+# epochs = 25
+# learning_rate = 0.001
+
+# hidden_size = 128
+# dropout = 0.2
+# num_layers = 1
+
+# symbol = "AAPL"
+
+
+
 ticker = yf.Ticker(symbol)
 
 historical_data = pd.read_csv("Dataset/APPL.csv", parse_dates=["Date"])
 #Converts items in the date category to datetime objects, instead of strings
 historical_data.set_index("Date", inplace=True)
+
+features_num = len(historical_data.keys()) # For LSTM Model
 
 # Makes historical_data only use a portion of the entire stock
 if (data_period != "max"):
@@ -46,17 +70,19 @@ if (data_period != "max"):
     start_date = end_date - pd.DateOffset(years=data_period) # data_period years before end_date
     historical_data = historical_data.loc[historical_data.index >= start_date] # Elements after the start_date
 
+# Split the indicies according to the split ratio
 split = int(split_ratio * len(historical_data))
 
+# Assign data points according to the split ratio
 train_data = historical_data[:split]
 test_data = historical_data[split:]
 
+# Scaling both the test and train, separately, while using the fit from the train data
 scaler = StandardScaler()
 train_normal = scaler.fit_transform(train_data)
 test_normal = scaler.transform(test_data)
 
-# normal = np.concatenate([train_normal, test_normal], axis=0)
-
+# Convert the normalized sets into tensors
 train_tensor = torch.tensor(train_normal, dtype=torch.float32)
 test_tensor = torch.tensor(test_normal, dtype=torch.float32)
 
@@ -65,20 +91,12 @@ def create_seq(input_tensor, window_size):
     x, y = [], []
 
     for i in range(len(input_tensor) - window_size):
-        x.append(input_tensor[i:i+window_size])
-        y.append(input_tensor[i+window_size][3])
+        x.append(input_tensor[i:i+window_size]) #X - input, every aspect of each window in i
+        y.append(input_tensor[i+window_size][3]) #Y - output the close price that is to be predicted from the tensor of the previous element
 
     return torch.stack(x), torch.tensor(y).unsqueeze(1)
 
-# x, y = [], []
-
-# for i in range(len(normal_tensor) - window):
-#     x.append(normal_tensor[i:i+window]) #X - input, every aspect of the tensor in i
-#     y.append(normal_tensor[i + window][3]) #Y - output the close price that is to be predicted from the tensor of the previous element
-
-# x = torch.stack(x)             # Shape: (N, 1, 4)
-# y = torch.tensor(y).unsqueeze(-1)  # Shape: (N, 1)
-
+# Create train and test sequences for x and y
 x_train, y_train = create_seq(train_tensor, window)
 x_test, y_test = create_seq(test_tensor, window)
 
@@ -87,7 +105,7 @@ class LSTM_Model(nn.Module):
     def __init__(self, hidden_size):
         super().__init__()
 
-        self.re = nn.LSTM(4, hidden_size=hidden_size, batch_first=True, dropout=dropout, num_layers=num_layers)
+        self.re = nn.LSTM(features_num, hidden_size=hidden_size, batch_first=True, dropout=dropout, num_layers=num_layers)
         self.relu = nn.ReLU()
         self.linear = nn.Linear(hidden_size, 1)
 
@@ -98,10 +116,6 @@ class LSTM_Model(nn.Module):
         # X = self.relu(X)
         return X
 
-# print(len(normal_tensor))
-# print(split)
-
-# print(split / len(normal_tensor))
 
 lstm = LSTM_Model(hidden_size=hidden_size)
 optimizer = torch.optim.AdamW(lstm.parameters(), lr=learning_rate)
