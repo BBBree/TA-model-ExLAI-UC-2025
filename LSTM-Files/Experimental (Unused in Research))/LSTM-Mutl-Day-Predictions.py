@@ -13,25 +13,26 @@ torch.manual_seed(42)
 np.random.seed(42)
 
 #Parameters
-data_period = 10 # In years
+data_period = 15 # In years
 data_interval = "1d" # How precise is the data being measured is
 
-window = 60 # The window of time the LSTM model will look at
+window = 90 # The window of time the LSTM model will look at
 
 split_ratio = 0.8
 
 batch_size = 32 # DataLoader
 
 # LSTM NN
-epochs = 43
+epochs = 100
 learning_rate = 0.001
+
+target_size = 1 # The Amount of days ahead the model will predict
 
 hidden_size = 128
 dropout = 0.2
 num_layers = 1
 
 symbol = "AAPL"
-from_file = True #Whether to use yfinance or a file for the historical data
 
 # #Parameters
 # data_period = 10 # In years
@@ -53,15 +54,13 @@ from_file = True #Whether to use yfinance or a file for the historical data
 
 # symbol = "AAPL"
 
-if (from_file != False):
-    ticker = yf.Ticker(symbol)
-    historical_data = ticker.history(period=f"{data_period}y", interval=data_interval)
-    historical_data = historical_data[["Open", "High", "Low", "Close", "Volume"]]
 
-else:
-    historical_data = pd.read_csv(f"Dataset/{symbol}.csv", parse_dates=["Date"])
-    #Converts items in the date category to datetime objects, instead of strings
-    historical_data.set_index("Date", inplace=True)
+
+ticker = yf.Ticker(symbol)
+
+historical_data = pd.read_csv("Dataset/APPL.csv", parse_dates=["Date"])
+#Converts items in the date category to datetime objects, instead of strings
+historical_data.set_index("Date", inplace=True)
 
 features_num = len(historical_data.keys()) # For LSTM Model
 
@@ -90,36 +89,35 @@ train_tensor = torch.tensor(train_normal, dtype=torch.float32)
 test_tensor = torch.tensor(test_normal, dtype=torch.float32)
 
 
-def create_seq(input_tensor, window_size):
+def create_seq(input_tensor, window_size, target_size):
     x, y = [], []
 
-    for i in range(len(input_tensor) - window_size):
+    for i in range(len(input_tensor) - window_size - target_size):
         x.append(input_tensor[i:i+window_size]) #X - input, every aspect of each window in i
-        y.append(input_tensor[i+window_size][3]) #Y - output the close price that is to be predicted from the tensor of the previous element
+        y.append(input_tensor[i+window_size:i+window_size + target_size, 3]) #Y - output the close price that is to be predicted from the tensor of the previous element
 
-    return torch.stack(x), torch.tensor(y).unsqueeze(1)
+    if target_size == 1:
+        return torch.stack(x), torch.tensor(y).unsqueeze(1)
+    else:
+        return torch.stack(x), torch.stack(y)
+
 
 # Create train and test sequences for x and y
-x_train, y_train = create_seq(train_tensor, window)
-x_test, y_test = create_seq(test_tensor, window)
+x_train, y_train = create_seq(train_tensor, window, target_size=target_size)
+x_test, y_test = create_seq(test_tensor, window, target_size=target_size)
 
 
 class LSTM_Model(nn.Module):
     def __init__(self, hidden_size):
         super().__init__()
 
-        if (num_layers > 1):
-            self.re = nn.LSTM(features_num, hidden_size=hidden_size, batch_first=True, num_layers=num_layers, dropout=dropout)
-        else:
-            self.re = nn.LSTM(features_num, hidden_size=hidden_size, batch_first=True, num_layers=num_layers)
-        self.relu = nn.ReLU()
-        self.linear = nn.Linear(hidden_size, 1)
+        self.re = nn.LSTM(features_num, hidden_size=hidden_size, batch_first=True, dropout=dropout, num_layers=num_layers)
+        self.linear = nn.Linear(hidden_size, target_size)
 
     def forward(self, X):
         X, _ = self.re(X)
         X = X[:, -1, :] 
         X = self.linear(X)
-        # X = self.relu(X)
         return X
 
 
@@ -183,10 +181,15 @@ predicted_prices = close_scaler.inverse_transform(predictions.numpy())
 actual_prices = close_scaler.inverse_transform(y_test.numpy())
 
 # Plotting
-test_dates = test_data.index[window:]
+test_dates = test_data.index[window:window + len(actual_prices)]
 plt.figure(figsize=(12, 6))
-plt.plot(test_dates, actual_prices, label="Actual Close Price")
-plt.plot(test_dates, predicted_prices, label="Predicted Close Price", alpha=0.7)
+# plt.plot(test_dates, actual_prices, label="Actual Close Price")
+# plt.plot(test_dates, predicted_prices, label="Predicted Close Price", alpha=0.7)
+
+plt.plot(test_dates, actual_prices[:, 0], label="Actual Day 1")
+plt.plot(test_dates, predicted_prices[:, 0], label="Predicted Day 1")
+
+
 plt.title("Actual vs Predicted Close Prices (Test Set)")
 plt.xlabel("Date")
 plt.ylabel("Price (USD)")

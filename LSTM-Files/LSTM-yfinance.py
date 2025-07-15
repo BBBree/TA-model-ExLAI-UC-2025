@@ -13,18 +13,18 @@ torch.manual_seed(42)
 np.random.seed(42)
 
 #Parameters
-data_period = "10y"
-data_interval = "1d" #How precise is the data being measured is
+data_period = "10y" # In years
+data_interval = "1d" # How precise is the data being measured is
 
-window = 90 #The window of time the LSTM model will look at
+window = 60 # The window of time the LSTM model will look at
 
 split_ratio = 0.8
 
-batch_size = 32 #DataLoader
+batch_size = 32 # DataLoader
 
-#LSTM NN
-epochs = 100
-learning_rate = 0.0001
+# LSTM NN
+epochs = 43
+learning_rate = 0.001
 
 hidden_size = 128
 dropout = 0.2
@@ -74,12 +74,16 @@ def create_seq(input_tensor, window_size):
 x_train, y_train = create_seq(train_tensor, window)
 x_test, y_test = create_seq(test_tensor, window)
 
+features_num = len(historical_data.keys())
 
 class LSTM_Model(nn.Module):
     def __init__(self, hidden_size):
         super().__init__()
 
-        self.re = nn.LSTM(4, hidden_size=hidden_size, batch_first=True, dropout=dropout, num_layers=num_layers)
+        if (num_layers > 1):
+            self.re = nn.LSTM(features_num, hidden_size=hidden_size, batch_first=True, num_layers=num_layers, dropout=dropout)
+        else:
+            self.re = nn.LSTM(features_num, hidden_size=hidden_size, batch_first=True, num_layers=num_layers)
         self.relu = nn.ReLU()
         self.linear = nn.Linear(hidden_size, 1)
 
