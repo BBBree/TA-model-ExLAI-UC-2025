@@ -10,7 +10,12 @@ from torch import nn
 import numpy as np
 
 torch.manual_seed(42)
+torch.cuda.manual_seed(42)
+torch.cuda.manual_seed_all(42)
 np.random.seed(42)
+
+torch.backends.cudnn.deterministic = True
+torch.backends.cudnn.benchmark = False
 
 #Parameters
 data_period = "10y" # In years
@@ -23,7 +28,7 @@ split_ratio = 0.8
 batch_size = 32 # DataLoader
 
 # LSTM NN
-epochs = 43
+epochs = 32
 learning_rate = 0.001
 
 hidden_size = 128

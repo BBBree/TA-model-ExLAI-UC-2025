@@ -14,10 +14,15 @@ from torch import nn
 import torch.nn as nn
 import torch.optim as optim
 
+#LSTM -------------------------------------------------------------
+
 torch.manual_seed(42)
+torch.cuda.manual_seed(42)
+torch.cuda.manual_seed_all(42)
 np.random.seed(42)
 
-#LSTM -------------------------------------------------------------
+torch.backends.cudnn.deterministic = True
+torch.backends.cudnn.benchmark = False
 
 #Parameters
 data_period = 10 # In years
@@ -30,7 +35,7 @@ split_ratio = 0.8
 batch_size = 32 # DataLoader
 
 # LSTM NN
-epochs = 43
+epochs = 32
 learning_rate = 0.001
 
 hidden_size = 128
@@ -179,6 +184,10 @@ test_dates_LSTM = test_data.index[window:]
 
 
 #CNN -------------------------------------------------------------
+
+torch.manual_seed(42)
+np.random.seed(42)
+
 # parameters
 input_channels = 5 # open, high, low, close, volume
 activation_function = nn.LeakyReLU()
@@ -191,7 +200,6 @@ scaler = StandardScaler()
 data_period = 10 # In years
 
 # Changes in which file is being used
-symbol = "AAPL"
 df = pd.read_csv(f"Dataset/{symbol}.csv", parse_dates=["Date"])
 #Converts items in the date category to datetime objects, instead of strings
 df.set_index("Date", inplace=True)
@@ -321,7 +329,7 @@ comparison_df = pd.DataFrame({
     'Actual_Close': inv_actual_price
 })
 pd.set_option('display.max_rows', None)
-print(comparison_df)
+# print(comparison_df)
 
 plt.figure(figsize=(12, 6))
 
