@@ -171,12 +171,17 @@ actual_prices = close_scaler.inverse_transform(y_test.numpy())
 # Plotting
 test_dates = test_data.index[window:]
 
-plt.figure(figsize=(12, 6))
+font_size = 15
+
+plt.figure(figsize=(4, 3))
+
 plt.plot(test_dates, actual_prices, label="Actual Close Price")
 plt.plot(test_dates, predicted_prices, label="Predicted Close Price", alpha=0.7)
-plt.title("Actual vs Predicted Close Prices (Test Set)")
-plt.xlabel("Date")
-plt.ylabel("Price (USD)")
+plt.title("Actual vs Predicted Close Prices (Test Set)", fontsize = font_size)
+plt.xlabel("Date", fontsize = font_size)
+plt.ylabel("Price (USD)",fontsize = font_size)
+plt.xticks(fontsize = font_size)
+plt.yticks(fontsize = font_size)
 plt.legend()
 plt.grid(True)
 plt.xticks(rotation=45)

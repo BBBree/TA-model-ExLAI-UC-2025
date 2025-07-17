@@ -331,7 +331,9 @@ comparison_df = pd.DataFrame({
 pd.set_option('display.max_rows', None)
 # print(comparison_df)
 
-plt.figure(figsize=(12, 6))
+font_size = 15
+
+plt.figure(figsize=(4, 3))
 
 plt.plot(test_dates, inv_price_prediction, label="CNN Predicted Close Price", color = "Orange")
 plt.plot(test_dates, inv_actual_price, label="Actual Close", color = "Blue")
@@ -339,11 +341,13 @@ plt.plot(test_dates, inv_actual_price, label="Actual Close", color = "Blue")
 plt.plot(test_dates_LSTM, actual_prices, color = "Blue")
 plt.plot(test_dates_LSTM, predicted_prices, label="LSTM Predicted Close Price", alpha=0.7, color = "Red")
 
-plt.xlabel("Date")
-plt.ylabel("Price (USD)")
-plt.title(f"{symbol} Closing Price Prediction")
+plt.xlabel("Date", fontsize = font_size)
+plt.ylabel("Price (USD)", fontsize = font_size)
+plt.title(f"{symbol} Closing Price Prediction", fontsize = font_size)
 plt.legend()
 plt.xticks(rotation=45)
+plt.xticks(fontsize = font_size)
+plt.yticks(fontsize = font_size)
 plt.tight_layout()
 plt.grid(True)
 plt.show()
