@@ -168,11 +168,6 @@ test_dates = test_data.index[window:]
 
 font_size = 15
 
-plt.figure(figsize=(4, 3))
-loss_subplot = plt.figure.add_subplot(111)
-loss_subplot.text(1, 13, avg_test_loss, bbox={
-        "facecolor": "white", 'pad': 10})
-
 plt.plot(test_dates, actual_prices, label="Actual Close Price")
 plt.plot(test_dates, predicted_prices, label="Predicted Close Price", alpha=0.7)
 plt.title("Actual vs Predicted Close Prices (Test Set)", fontsize = font_size)

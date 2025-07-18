@@ -1,0 +1,203 @@
+cff-version: 1.2.0
+message: 
+authors:
+  - family-names: DiTallo
+    given-names: Jack
+  - family-names: Willis
+    given-names: Grant
+  - family-names: Usov
+    given-names: Gleb
+  - family-names: Persinger
+    given-names: Brianna
+  - family-names: Das
+    given-names: Varun
+  - family-names: Roberts
+    given-names: Phillip
+  - family-names: Agarwal
+    given-names: Yash
+title: "Modeling The Stock Market Using Historical Data With Neural Networks"
+version: 1.0.0
+date-released: 2025-07-18
+references:
+  - type: software
+    authors:
+      - family-names: Aroussi
+        given-names: R.
+    title: "yfinance: Download market data from Yahoo! Finance’s API"
+    url: "https://github.com/ranaroussi/yfinance"
+
+  - type: article
+    authors:
+      - family-names: Harris
+        given-names: C. R.
+      - family-names: Millman
+        given-names: K. J.
+      - family-names: van der Walt
+        given-names: S. J.
+      - family-names: Gommers
+        given-names: R.
+      - family-names: Virtanen
+        given-names: P.
+      - family-names: Cournapeau
+        given-names: D.
+      - family-names: Wieser
+        given-names: E.
+      - family-names: Taylor
+        given-names: J.
+      - family-names: Berg
+        given-names: A.
+      - family-names: Smith
+        given-names: N. J.
+      - family-names: Kern
+        given-names: R.
+      - family-names: Picus
+        given-names: M.
+      - family-names: Hoyer
+        given-names: S.
+      - family-names: van Kerkwijk
+        given-names: M. H.
+      - family-names: Brett
+        given-names: M.
+      - family-names: Haldane
+        given-names: A.
+      - family-names: del Río
+        given-names: J. F.
+      - family-names: Wiebe
+        given-names: M.
+      - family-names: Peterson
+        given-names: P.
+      - family-names: Gérard-Marchant
+        given-names: P.
+      - family-names: Sheppard
+        given-names: K.
+      - family-names: Reddy
+        given-names: T.
+      - family-names: Weckesser
+        given-names: W.
+      - family-names: Abbasi
+        given-names: H.
+      - family-names: Gohlke
+        given-names: C.
+      - family-names: Oliphant
+        given-names: T. E.
+    title: "Array programming with NumPy"
+    journal: "Nature"
+    volume: 585
+    pages: "357-362"
+    year: 2020
+    doi: "10.1038/s41586-020-2649-2"
+    url: "https://www.nature.com/articles/s41586-020-2649-2"
+
+  - type: article
+    authors:
+      - family-names: Hunter
+        given-names: J. D.
+    title: "Matplotlib: A 2D graphics environment"
+    journal: "Computing in Science & Engineering"
+    volume: 9
+    issue: 3
+    pages: "90-95"
+    year: 2007
+    doi: "10.1109/MCSE.2007.55"
+    url: "https://ieeexplore.ieee.org/document/4160265"
+
+  - type: software
+    authors:
+      - name: "The pandas development team"
+    title: "pandas-dev/pandas"
+    version: "2.3.1"
+    url: "https://doi.org/10.5281/zenodo.15831829"
+    doi: "10.5281/zenodo.15831829"
+    date-released: 2025
+
+  - type: article
+    authors:
+      - family-names: Paszke
+        given-names: A.
+      - family-names: Gross
+        given-names: S.
+      - family-names: Massa
+        given-names: F.
+      - family-names: Lerer
+        given-names: A.
+      - family-names: Bradbury
+        given-names: J.
+      - family-names: Chanan
+        given-names: G.
+      - family-names: Killeen
+        given-names: T.
+      - family-names: Lin
+        given-names: Z.
+      - family-names: Gimelshein
+        given-names: N.
+      - family-names: Antiga
+        given-names: L.
+      - family-names: Desmaison
+        given-names: A.
+      - family-names: Kopf
+        given-names: A.
+      - family-names: Yang
+        given-names: E.
+      - family-names: DeVito
+        given-names: Z.
+      - family-names: Raison
+        given-names: M.
+      - family-names: Tejani
+        given-names: A.
+      - family-names: Chilamkurthy
+        given-names: S.
+      - family-names: Steiner
+        given-names: B.
+      - family-names: Fang
+        given-names: L.
+      - family-names: Bai
+        given-names: J.
+      - family-names: Chintala
+        given-names: S.
+    title: "PyTorch: An Imperative Style, High-Performance Deep Learning Library"
+    container-title: "Advances in Neural Information Processing Systems"
+    volume: 32
+    pages: "8024-8035"
+    year: 2019
+    url: "http://papers.neurips.cc/paper/9015-pytorch-an-imperative-style-high-performance-deep-learning-library.pdf"
+
+  - type: article
+    authors:
+      - family-names: Pedregosa
+        given-names: F.
+      - family-names: Varoquaux
+        given-names: G.
+      - family-names: Gramfort
+        given-names: A.
+      - family-names: Michel
+        given-names: V.
+      - family-names: Thirion
+        given-names: B.
+      - family-names: Grisel
+        given-names: O.
+      - family-names: Blondel
+        given-names: M.
+      - family-names: Prettenhofer
+        given-names: P.
+      - family-names: Weiss
+        given-names: R.
+      - family-names: Dubourg
+        given-names: V.
+      - family-names: Vanderplas
+        given-names: J.
+      - family-names: Passos
+        given-names: A.
+      - family-names: Cournapeau
+        given-names: D.
+      - family-names: Brucher
+        given-names: M.
+      - family-names: Perrot
+        given-names: M.
+      - family-names: Duchesnay
+        given-names: É.
+    title: "Scikit-learn: Machine learning in Python"
+    journal: "Journal of Machine Learning Research"
+    volume: 12
+    pages: "2825-2830"
+    year: 2011
+    url: "https://www.jmlr.org/papers/v12/pedregosa11a.html"
