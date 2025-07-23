@@ -24,6 +24,8 @@ np.random.seed(42)
 torch.backends.cudnn.deterministic = True
 torch.backends.cudnn.benchmark = False
 
+torch.use_deterministic_algorithms(True)
+
 #Parameters
 data_period = 10 # In years
 data_interval = "1d" # How precise is the data being measured is
@@ -184,9 +186,6 @@ test_dates_LSTM = test_data.index[window:]
 
 
 #CNN -------------------------------------------------------------
-
-torch.manual_seed(42)
-np.random.seed(42)
 
 # parameters
 input_channels = 5 # open, high, low, close, volume

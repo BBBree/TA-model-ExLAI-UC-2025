@@ -22,38 +22,6 @@ scaler = StandardScaler()
 
 data_period = 10 # In years
 
-# Change
-
-    # df = pd.read_csv("CNN/data.csv")
-    # df = df[df["Company"] == "SBUX"] # select stock option
-
-    # open_data = list()
-    # close_data = list()
-    # high_data = list()
-    # low_data = list()
-    # volume_data = list()
-
-    # # fixing dataset format
-
-    # start_index = df.index[0]
-
-    # for i in range(len(df)):
-    #     i += start_index
-    #     open_data.append(float(df["Open"][i][1:]))
-    #     close_data.append(float(df["Close/Last"][i][1:]))
-    #     high_data.append(float(df["High"][i][1:]))
-    #     low_data.append(float(df.Low[i][1:]))
-    #     volume_data.append(float(df.Volume[i]))
-
-
-    # open_data.reverse()
-    # high_data.reverse()
-    # low_data.reverse()
-    # close_data.reverse()
-    # volume_data.reverse()
-
-# Change
-
 # Changes in which file is being used
 symbol = "AAPL"
 df = pd.read_csv(f"Dataset/{symbol}.csv", parse_dates=["Date"])
