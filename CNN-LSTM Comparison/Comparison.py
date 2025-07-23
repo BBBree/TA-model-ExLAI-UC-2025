@@ -14,10 +14,17 @@ from torch import nn
 import torch.nn as nn
 import torch.optim as optim
 
+#LSTM -------------------------------------------------------------
+
 torch.manual_seed(42)
+torch.cuda.manual_seed(42)
+torch.cuda.manual_seed_all(42)
 np.random.seed(42)
 
-#LSTM -------------------------------------------------------------
+torch.backends.cudnn.deterministic = True
+torch.backends.cudnn.benchmark = False
+
+torch.use_deterministic_algorithms(True)
 
 #Parameters
 data_period = 10 # In years
@@ -30,7 +37,7 @@ split_ratio = 0.8
 batch_size = 32 # DataLoader
 
 # LSTM NN
-epochs = 43
+epochs = 32
 learning_rate = 0.001
 
 hidden_size = 128
@@ -179,6 +186,7 @@ test_dates_LSTM = test_data.index[window:]
 
 
 #CNN -------------------------------------------------------------
+
 # parameters
 input_channels = 5 # open, high, low, close, volume
 activation_function = nn.LeakyReLU()
@@ -191,7 +199,6 @@ scaler = StandardScaler()
 data_period = 10 # In years
 
 # Changes in which file is being used
-symbol = "AAPL"
 df = pd.read_csv(f"Dataset/{symbol}.csv", parse_dates=["Date"])
 #Converts items in the date category to datetime objects, instead of strings
 df.set_index("Date", inplace=True)
@@ -321,9 +328,11 @@ comparison_df = pd.DataFrame({
     'Actual_Close': inv_actual_price
 })
 pd.set_option('display.max_rows', None)
-print(comparison_df)
+# print(comparison_df)
 
-plt.figure(figsize=(12, 6))
+font_size = 15
+
+plt.figure(figsize=(4, 3))
 
 plt.plot(test_dates, inv_price_prediction, label="CNN Predicted Close Price", color = "Orange")
 plt.plot(test_dates, inv_actual_price, label="Actual Close", color = "Blue")
@@ -331,11 +340,13 @@ plt.plot(test_dates, inv_actual_price, label="Actual Close", color = "Blue")
 plt.plot(test_dates_LSTM, actual_prices, color = "Blue")
 plt.plot(test_dates_LSTM, predicted_prices, label="LSTM Predicted Close Price", alpha=0.7, color = "Red")
 
-plt.xlabel("Date")
-plt.ylabel("Price (USD)")
-plt.title(f"{symbol} Closing Price Prediction")
+plt.xlabel("Date", fontsize = font_size)
+plt.ylabel("Price (USD)", fontsize = font_size)
+plt.title(f"{symbol} Closing Price Prediction", fontsize = font_size)
 plt.legend()
 plt.xticks(rotation=45)
+plt.xticks(fontsize = font_size)
+plt.yticks(fontsize = font_size)
 plt.tight_layout()
 plt.grid(True)
 plt.show()

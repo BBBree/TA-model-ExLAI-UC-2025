@@ -10,7 +10,12 @@ from torch import nn
 import numpy as np
 
 torch.manual_seed(42)
+torch.cuda.manual_seed(42)
+torch.cuda.manual_seed_all(42)
 np.random.seed(42)
+
+torch.backends.cudnn.deterministic = True
+torch.backends.cudnn.benchmark = False
 
 #Parameters
 data_period = "10y" # In years
@@ -23,7 +28,7 @@ split_ratio = 0.8
 batch_size = 32 # DataLoader
 
 # LSTM NN
-epochs = 43
+epochs = 32
 learning_rate = 0.001
 
 hidden_size = 128
@@ -160,12 +165,17 @@ actual_prices = close_scaler.inverse_transform(y_test.numpy())
 
 # Plotting
 test_dates = test_data.index[window:]
-plt.figure(figsize=(12, 6))
+
+font_size = 15
+
 plt.plot(test_dates, actual_prices, label="Actual Close Price")
 plt.plot(test_dates, predicted_prices, label="Predicted Close Price", alpha=0.7)
-plt.title("Actual vs Predicted Close Prices (Test Set)")
-plt.xlabel("Date")
-plt.ylabel("Price (USD)")
+plt.title("Actual vs Predicted Close Prices (Test Set)", fontsize = font_size)
+plt.xlabel("Date", fontsize = font_size)
+plt.ylabel("Price (USD)",fontsize = font_size)
+plt.xticks(fontsize = font_size)
+plt.yticks(fontsize = font_size)
+plt.text(avg_test_loss)
 plt.legend()
 plt.grid(True)
 plt.xticks(rotation=45)
